@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Get your outbox out of the dark ages!</title>
+		<meta name="description" content="Get your outbox out of the dark ages!">
+		<meta name="author" content="Szymon Pobiega">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/night.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="plugin/highlight/zenburn.css">
+
+		<style media="screen" type="text/css">
+
+			:root {
+				--r-heading-color: #292929;
+			}
+
+			@font-face {
+				font-family: 'DSWallau';
+				src: url('images/DSWallau.ttf') format('truetype');
+				font-weight: normal;
+				font-style: normal;
+			}
+
+			.reveal {
+				background-image: url('images/pattern.webp');
+    			background-repeat: repeat;
+				background-color: #d4cdb1;
+				color: #292929;
+			}
+
+			.reveal a {
+				color: #292929;
+			}
+
+			.reveal section img { 
+				background:none; 
+				border:none; 
+				box-shadow:none; 
+			}
+
+			.highlight-step.visible ~ table td.to-highlight {
+				background: gold;
+			}
+
+			.reveal table {
+			  margin: auto;
+			  border-collapse: collapse;
+			  border-spacing: 0;
+			}
+
+			.reveal table th {
+			  font-weight: bold;
+			}
+
+			.reveal table th,
+			.reveal table td {
+			  text-align: left;
+			  padding: 0.2em 0.5em 0.2em 0.5em;
+			  border-bottom: 1px solid;
+			}
+
+			.highlight-inline {
+            	background:yellow;
+            	color:black;
+			}
+			
+			.highlight-inline span {
+				background:inherit;
+				color:inherit;
+			}
+
+			.reveal pre code {
+				font-size: 1.4em;
+				line-height: 1.2;
+			}
+
+			img.zoom-island {
+				transform: translate(0, -15%);
+			}
+
+			img.zoom-centre {
+				transform: scale(2.1) translate(0, 0);
+			}
+			
+			img.zoom-left-centre {
+				transform: scale(2.2) translate(25%, 0);
+			}
+
+			img.zoom-left-top {
+				transform: scale(2.2) translate(25%, 30%);
+			}
+
+			img.zoom-left-bottom {
+				transform: scale(2.2) translate(25%, -25%);
+			}
+
+			img.zoom-right-centre {
+				transform: scale(1.8) translate(-25%, 0);
+			}
+
+			img.zoom-right-top {
+				transform: scale(2.4) translate(-25%, 20%);
+			}
+
+			img.zoom-right-centre-top {
+				transform: scale(2.4) translate(-25%, 0);
+			}
+
+			img.zoom-right-bottom {
+				transform: scale(2.4) translate(-25%, -25%);
+			}
+			#footer-left {
+				position: absolute;
+				bottom: 5%;
+				left: 2%;
+			}
+
+			pre {
+				tab-size: 3;
+			}
+
+			.particular-logo {
+				position: fixed;
+				height: 80px;
+				z-index: 30;
+				left: 20px;
+				bottom: 50px;
+			}
+
+			.header {
+				background: url(images/wood.webp) center center/cover no-repeat;
+				padding: 50px;
+				font-family: 'DSWallau', sans-serif !important;
+				color: #eee !important;
+			}
+
+			.credits {
+				position: fixed;
+				height: 80px;
+				z-index: 30;
+				right: 20px;
+				bottom: 20px;
+			}
+
+			span.hljs-comment {
+				display: none;
+			}
+			span.line-annotation {
+				display: none;
+			}
+			tr.highlight-line span.hljs-comment {
+				display: inline;
+			}
+			.reveal .slides section {
+				padding-bottom: 75px;
+			}
+			.particular-logo,
+			.credits {
+				position: absolute;
+				bottom: 50;
+				z-index: 10;
+			}
+			.reveal img.quarter-height {
+				max-height: 25vh;
+			}
+
+			/* Timeline */
+			.timeline-table {
+				position: absolute;
+				top: 15%;
+				left: 10%;
+				width: 1100px;
+
+				border-collapse: collapse;
+				border-spacing: 0;
+				table-layout: fixed;
+
+				border: none;
+			}
+
+			.timeline-table tr,
+			.timeline-table td,
+			.timeline-table tbody {
+				border: none !important;
+			}
+
+			.timeline-table tr {
+			height: 80px;                /* ✅ uniform row height */
+			}
+
+			.timeline-table td {
+				width: 50%;
+				padding: 0;
+				border: none;                /* ✅ no borders */
+			}
+
+			.cell-box div {
+				background-image: url(images/wood.webp);
+				background-size: cover;        /* fills the cell nicely */
+				background-position: center;   /* keeps it centered */
+				background-repeat: no-repeat;
+				padding: 12px 12px;
+
+				text-align: center;
+				align-items: center;
+			}
+
+			.cell-box {
+				color: white;
+				font-weight: 700;
+				text-align: center;
+				vertical-align: middle;
+
+				font-size: 0.75em;
+				line-height: 1.2;
+				padding: 8px 12px;
+			}
+			.timeline-slide {
+  position: relative;
+}
+
+.timeline-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.timeline-table {
+  position: absolute;
+  top: 12%;
+  left: 8%;
+  width: 1100px;
+  z-index: 2;
+}
+
+.flow-arrow {
+  position: absolute;          /* critical */
+  width: 28px;
+  height: 630px;
+  background-image: url("images/arrow.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+.arrow-left {
+  left: 350px;
+  top: -20px;
+}
+
+.arrow-right {
+  left: 905px;
+  top: -20px;
+}
+		</style>
+	</head>
+
+	<body>
+		<div class="reveal">
+			<aside class="particular-logo" id="particular-logo">
+				<img src="images/Particular.svg" height="100em"/>
+			</aside>
+			<aside class="credits">
+				<div>exactly-once.github.io</div>
+			</aside>
+			<div class="slides">
+				<section>
+					<img src="images/intro.png" class="stretch"/>
+				</section>
+				<section>
+					<h2 class="header">Get your outbox out of <br/>the dark ages!</h2>
+					<p><a href="https://exactly-once.github.io/">exactly-once.github.io</a></p>
+					<p><a href="https://www.linkedin.com/in/szymonpobiega/">linkedin.com/in/SzymonPobiega</a></p>
+					<p><a href="https://bsky.app/profile/szymonpobiega.bsky.social">@szymonpobiega.bsky.social</a></p>
+					<aside class="notes">
+						
+					</aside>
+				</section>
+				<section data-transition="slide-in none-out">
+					<img src="images/two-generals-1.png" class="stretch"/>
+					<aside class="notes">
+						The middle ages were time of the siege warfare. It is an interesting bit of trivia that sieges
+						were much more common than battles in the field.
+						<hr/>
+						It is fitting to make a siege the theme of this session. 
+						<hr/>
+						It is also very related as a topic because of the well-known Two Generals problem. The problem is though to
+						mean that consistency in a distributed system is impossible.
+						<hr/>
+						The idea is that two armies are encamped on the opposite sides of a castle. If any one attacks alone, they lose. They need
+						to coordinate the attack
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/two-generals-1-1.png" class="stretch"/>
+					<aside class="notes">
+						The challenge is that the only way of communication between generals are messangers and the defenders are trying to shoot them down
+						<hr/>
+						Each messanger has certain change of getting through but the general who sent them does not know if they succeeded
+					</aside>
+				</section>
+				<section data-transition="none-in slide-out">
+					<img src="images/two-generals-2.png" class="stretch"/>
+					<aside class="notes">
+						It is fairly easy to see that neither general can even be sure that they are both in agreement when to attack
+						<hr/>
+						In the distributed system terms it translates to the impossibility of having exactly-once delivery semantics:
+						to have a message delivered only once to the processing code.
+						<hr/>
+						Let's leve the generals for a moment and look at how that relates to real-life distributed systems
+					</aside>
+				</section>
+				<section>
+					<img src="images/message-processing.png" class="stretch"/>
+					<aside class="notes">
+						It turns out that the two generals problem differs in one more aspect from the message processing
+						in async systems. In the latter we usually have three things that needs coordination: consumption of
+						the incoming message, persisting the state change and sending out messages.
+						<hr/>
+						Moreover, the three resources we are coordinating have sligthly different characteristics
+						<hr/>
+						While we are here let me also mention that when I use term <strong>transaction</strong> I mean the entirety
+						of processing of a single message, no a transaction with a data store or a queue. For these
+						I'll use the term <strong>operation</strong>	
+					</aside>
+				</section>
+				<section>
+					<h2>Database</h2>
+					<h3 class="fragment">👎Can't commit twice</h3>
+					<h3 class="fragment">👍Can check if comitted</h3>
+					<h3 class="fragment">👎Likely to reject</h3>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<h2>Outgoing queue</h2>
+					<h3 class="fragment">👎Can't check if committed</h3>
+					<h3 class="fragment">👍Can commit multiple times</h3>
+					<h3 class="fragment">👍Unlikely to reject</h3>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<h2>Incoming queue</h2>
+					<h3 class="fragment">💥Commit is destructive</h3>
+					<h3 class="fragment">👍Unlikely to reject</h3>
+					<aside class="notes">
+						Let's get back in time to the middle ages and try to represent the battle situation more accurately 
+						
+					</aside>
+				</section>
+				<section>
+					<img src="images/three-generals-1.png" class="stretch"/>
+					<aside class="notes">
+						Instead of two, we have three generals
+						
+					</aside>
+				</section>
+				<section>
+					<h1>🔁Iterative</h1>
+					<aside class="notes">
+						The process is not iterative. We are going to be thinking about consecutive attacks
+						<hr/>
+						And based on our description of resources let's sketch characteristics of each army and general
+					</aside>
+				</section>
+				<section>
+					<img src="images/tent-red.png" class="quarter-height"/>
+					<h3 class="fragment">Can send unlimited waves of troops</h3>
+					<h3 class="fragment">Troops won't attack first</h3>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<img src="images/tent-blue.png" class="quarter-height"/>
+					<h3 class="fragment">Can only send his troops once per attack</h3>
+					<h3 class="fragment">Troops sometimes refuse to attack</h3>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<img src="images/tent-green.png" class="quarter-height"/>
+					<h3 class="fragment">Leads his troops into battle</h3>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<img src="images/three-generals-1-1.png" class="stretch"/>
+					<aside class="notes">
+						So how exactly can we create a communication plan using messangers to make sure attacks succeed?
+						<hr/>
+						We need to also keep in mind that, thanks to not exactly very healthy
+						medieval diet, they all have very <strong>bad memory</strong>.
+						<br/>
+						So bad in fact, that Blue and Red can't remember anything 10 seconds
+						after reading a messanger's note.
+					</aside>
+				</section>
+				<section>
+					<img src="images/three-generals-1-2.png" class="stretch"/>
+					<aside class="notes">
+						Let's put the green general in charge. He needs to know that the others received his orders before he
+						marches with his troops to battle
+						<hr/>
+						The red one should never ever attack first. He needs confirmation from the blue one.
+						<hr/>
+						The blue one needs to keep track of orders received from green. He checks if we send his troops for a given
+						charge. If so, he should not send them again. Once he sent his troops, he should immediately inform the red
+						general by sending messangers to him until he gets the confirmation.
+						<hr/>
+						We need some sort of a protocol between Green and Blue to uniquely identify attack waves.
+					</aside>
+				</section>
+				<section data-transition="slide-in none-out">
+					<img src="images/attack-1.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in slide-out">
+					<img src="images/attack-2.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="slide-in slide-out">
+					<img src="images/knights.jpg" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="slide-in slide-out">
+					<img src="images/knights-nay.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="slide-in none-out">
+					<img src="images/attack-3.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/attack-4.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/attack-5.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/attack-6.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/attack-7.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/attack-8.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/attack-9.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/attack-10.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/attack-11.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/attack-12.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/attack-13.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/attack-14.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in slide-out">
+					<img src="images/attack-15.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<img src="images/tent-blue.png" class="stretch"/>
+					<aside class="notes">
+						As we can see, most of the burden is on the blue general. It has to maintain information about
+						messages already received from the Green one and make sure to forward them to the Red one.
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="slide-in none-out">
+					<img src="images/message-processing.png" class="stretch"/>
+					<aside class="notes">
+						Our message processing logic is the Blue General
+						<hr/>
+						But while the blue general had to only keep track of attack waves, our processing logic needs to also do something
+						useful -- maintain and update business data. 
+					</aside>
+				</section>
+				<section data-transition="none-in none-out">
+					<img src="images/message-processing-2.png" class="stretch"/>
+					<aside class="notes">
+						This is why we have two separate arrows here (although everything needs to happen atomically)
+						<hr/>
+						Not only that, the messages we send out can depend on the state of the stored business data
+					</aside>
+				</section>
+				<section data-transition="none-in slide-out">
+					<img src="images/message-processing-3.png" class="stretch"/>
+					<aside class="notes">
+						So we need to store the messages we are about to send, alongise the identification of the message we finished processing
+					</aside>
+				</section>
+				<section>
+					<img src="images/tent-books.png" class="stretch"/>
+					<aside class="notes">
+						The blue general's tent would be full of books, not weapons
+					</aside>
+				</section>
+				<section>
+					<img src="images/manuscript-outbox.png" class="stretch"/>
+					<aside class="notes">
+						Each entry containing information about the "message" it processed, including:
+						<hr/>
+						Unique ID - order 56
+						<br/>
+						Date - October 12
+						<br/>
+						Messages to be sent to the Red general
+					</aside>
+				</section>
+				<section>
+					<img src="images/horse-collar.png" class="stretch"/>
+					<aside class="notes">
+						This is in essence the outbox pattern as it is used in the messaging systems.
+						<hr/>
+						The important bit is it always includes the information about the incoming messages so that messages can be 
+						de-duplicated
+						<hr/>
+						It is like a horse collar -- tt just gets your economy going. High tech of the high middle ages.
+						<hr/>
+						Unfortunately it has some serious flaws
+					</aside>
+				</section>
+				<section>
+					<h1>Data retention</h1>
+					<aside class="notes">
+						Deleting data from a database is costly and complex
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<h2>Batching</h2>
+					<img src="images/batches.webp" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<h2>Partitions</h2>
+					<img src="images/partitions.webp" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<h2>Separate store</h2>
+					<img src="images/separate-store.jpg" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<img src="images/town.jpg" class="stretch"/>
+					<aside class="notes">
+						Medieval towns are not exactly known for their clean streets
+						<hr/>
+						The existing outbox implementations are like that. They generate the garbage hoping some other process
+						will take care of it
+					</aside>
+				</section>
+				<section>
+					<img src="images/trebuchet.webp" class="stretch"/>
+					<aside class="notes">
+						Let us trebuchet our outbox out of the dark ages!
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<h1>💡</h1>
+					<h2 class="fragment strike">track what we processed</h2>
+					<h2 class="fragment">track of what we <span class="fragment highlight-red">will</span> process</h2>
+					<aside class="notes">
+						We need to think outside of our era!
+						<hr/>
+						The idea of outbox is based on tracking what we processed in order to avoid duplicate processing
+						<hr/>
+						We can achieve the same effect by tracking what is left to be processed
+						<hr/>
+						But in this second approach, we leave no garbage behind
+						<hr/>
+						Let's call these to-be-processed tracking devices tokens. You can only process a message if you have a token for it.
+						<hr/>
+						The important caveat is that we still need the transaction metadata information in the database.
+						The difference is that we'll need it only for a very short time while the transaction is being worked on.
+					</aside>
+				</section>
+				<section>
+					<img src="images/receiver.png" class="stretch"/>
+					<aside class="notes">
+						Let’s see what receiver would look like: it needs a one time token that it deletes when processing a message
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="slide-in none-out">
+					<img src="images/receiver-1.png" class="stretch"/>
+					<aside class="notes">
+						When it receives a message, it needs to confirm it can obtrain a token for processing it (top "white" database)
+						before actually processing it
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in slide-out">
+					<img src="images/receiver-2.png" class="stretch"/>
+					<aside class="notes">
+						In reality, it needs to follow a more elaborte list of 5 precisely defined steps
+						<hr/>
+						Let's try to step-through them concurrently to check if the algorithm really works
+					</aside>
+				</section>
+				<section class="timeline-slide">
+					<div class="timeline-wrapper">
+						<table class="timeline-table">
+							<tr><td class="cell-box fragment"><div>Init record<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Verify token exists<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Insert record<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Delete token<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Delete record<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="empty"><td class="cell-box fragment"><div>Init record<span class="fragment">✅</span></div></td></tr>
+							<tr><td class="empty"><td class="cell-box fragment"><div>Verify token exists<span class="fragment">❌</span></div></td></tr>
+						</table>
+						<div class="flow-arrow arrow-left"></div>
+						<div class="flow-arrow arrow-right"></div>
+					</div>
+					<aside class="notes">
+						First, a simple case when a duplicate copy of a message arrives after the first one has been entirely processed
+					</aside>
+				</section>
+				<section class="timeline-slide">
+					<div class="timeline-wrapper">
+						<table class="timeline-table">
+							<tr><td class="cell-box fragment"><div>Init record<span class="fragment">✅</span></div></td><td class="cell-box fragment"><div>Init record<span class="fragment">✅</span></div></td></tr>
+							<tr><td class="cell-box fragment"><div>Verify token exists<span class="fragment">✅</span></div></td><td class="cell-box fragment"><div>Verify token exists<span class="fragment">✅</span></div></td></tr>
+
+							<tr><td class="empty"></td></tr>
+
+							<tr><td class="cell-box fragment"><div>Insert record<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+
+							<tr><td class="empty"><td class="cell-box fragment"><div>Insert record<span class="fragment">❌</span></div></td></tr>
+
+						</table>
+						<div class="flow-arrow arrow-left"></div>
+						<div class="flow-arrow arrow-right"></div>
+					</div>
+					<aside class="notes">
+						Next, let's introduce concurrency
+						<br/>
+						The processed worked
+					</aside>
+				</section>
+				<section class="timeline-slide">
+					<div class="timeline-wrapper">
+						<table class="timeline-table">
+							<tr><td class="cell-box fragment"><div>Init record<span class="fragment">✅</span></div></td><td class="cell-box fragment"><div>Init record<span class="fragment">✅</span></div></td></tr>
+							<tr><td class="cell-box fragment"><div>Verify token exists<span class="fragment">✅</span></div></td><td class="cell-box fragment"><div>Verify token exists<span class="fragment">✅</span></div></td></tr>
+							<!-- <tr><td class="empty"></td></tr> -->
+
+							<tr><td class="cell-box fragment"><div>Insert record<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<!-- <tr><td class="cell-box fragment"><div>...</div></td><td class="empty"></td></tr> -->
+							<tr><td class="cell-box fragment"><div>Delete token<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Delete record<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="empty"><td class="cell-box fragment"><div>Insert record<span class="fragment">✅</span></div></td></tr>
+
+						</table>
+						<div class="flow-arrow arrow-left"></div>
+						<div class="flow-arrow arrow-right"></div>
+					</div>
+					<aside class="notes">
+						This time let's introduce concurrency and also an arbitrary long pause. This is usually a great way of finding
+						problems in concurrent distributed algorithms
+					</aside>
+				</section>
+				<section>
+					<img src="images/bruegel-triumph-death-painting.webp" class="stretch"/>
+					<aside class="notes">
+						And we ended up in a disaster. What have we done wrong?
+						<br/>
+						We allowed the second processing thread to commit its main transaction. To prvent that we need to employ optimistic concurrency.
+					</aside>
+				</section>
+				<section class="timeline-slide">
+					<div class="timeline-wrapper">
+						<table class="timeline-table">
+							<tr><td class="cell-box fragment"><div>Create record<span class="fragment">✅</span></div></td><td class="cell-box fragment"><div>Create</span> record<span class="fragment">❌</span></div></td></tr>
+							<tr><td class="cell-box fragment"><div>Load record<span class="fragment">✅</span></div></td><td class="cell-box fragment"><div>Load record<span class="fragment">✅</span></div></td></tr>
+							<tr><td class="cell-box fragment"><div>Verify token exists<span class="fragment">✅</span></div></td><td class="cell-box fragment"><div>Verify token exists<span class="fragment">✅</span></div></td></tr>
+							<!-- <tr><td class="empty"></td></tr> -->
+
+							<tr><td class="cell-box fragment"><div>Update record<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<!-- <tr><td class="cell-box fragment"><div>...</div></td><td class="empty"></td></tr> -->
+							<tr><td class="cell-box fragment"><div>Delete token<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Delete record<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="empty"><td class="cell-box fragment"><div>Update record<span class="fragment">❌</span></div></td></tr>
+
+						</table>
+						<div class="flow-arrow arrow-left"></div>
+						<div class="flow-arrow arrow-right"></div>
+					</div>
+					<aside class="notes">
+						First we ensure our records are created. It does not matter which of the concurrent threads does it.
+						<br/>
+						Then the real processing starts by loading the existing record and ensuring it has no information about being already processed
+						<br/>
+						The processing ends by updating the record with indication it has already been processed IF AND ONLY IF it does not
+						have that indication yet -- optimistic concurrency
+					</aside>
+				</section>
+				<section>
+					<img src="images/sender.png" class="stretch"/>
+					<aside class="notes">
+						Let’s look at sender. How can it generate the tokens. They need to be pre-generated before sending. 
+						At most once semantics because we never ever want to re-create them
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="slide-in none-out">
+					<img src="images/sender-1.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in slide-out">
+					<img src="images/sender-2.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section class="timeline-slide">
+					<div class="timeline-wrapper">
+						<table class="timeline-table">
+							<tr><td class="cell-box fragment"><div>Store messages<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Create tokens<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Send message 1<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="empty"><td class="cell-box fragment"><div>Process message 1<span class="fragment">✅</span></div></tr>
+							<tr><td class="cell-box fragment"><div>Send message 2<span class="fragment">❌</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Create tokens<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Send message 1<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+						</table>
+						<div class="flow-arrow arrow-left"></div>
+						<div class="flow-arrow arrow-right"></div>
+					</div>
+				</section>
+				<section class="timeline-slide">
+					<div class="timeline-wrapper">
+						<table class="timeline-table">
+							<tr><td class="cell-box fragment"><div>Store messages<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Create tokens<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Checkpoint<span class="fragment">❌</span></div></td><td class="empty"></td></tr>
+							<tr><td class="empty"></td><td class="empty"></td></tr>
+							<tr><td class="empty"></td><td class="cell-box fragment"><div>Create tokens<span class="fragment">✅</span></div></td></tr>
+							<tr><td class="empty"></td><td class="cell-box fragment"><div>Checkpoint<span class="fragment">✅</span></div></td></tr>
+							<tr><td class="empty"></td><td class="cell-box fragment"><div>Send messages<span class="fragment">✅</span></div></td></tr>
+						</table>
+						<div class="flow-arrow arrow-left"></div>
+						<div class="flow-arrow arrow-right"></div>
+					</div>
+				</section>
+				<section class="timeline-slide">
+					<div class="timeline-wrapper">
+						<table class="timeline-table">
+							<tr><td class="cell-box fragment"><div>Store messages<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Create tokens<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Checkpoint<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Send message 1<span class="fragment">✅</span></div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment"><div>Send message 2<span class="fragment">❌</span></div></td><td class="empty"></td></tr>
+							<tr><td class="empty"></td><td class="cell-box fragment"><div>Send message 1<span class="fragment">✅</span></div></td></tr>
+							<tr><td class="empty"></td><td class="cell-box fragment"><div>Send message 2<span class="fragment">✅</span></div></td></tr>
+						</table>
+						<div class="flow-arrow arrow-left"></div>
+						<div class="flow-arrow arrow-right"></div>
+					</div>
+				</section>
+				<section>
+					<img src="images/sender-receiver-1.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<img src="images/egg-horse.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="slide-in none-out">
+					<img src="images/sender-receiver-2.png" class="stretch"/>
+					<aside class="notes">
+						The second approach used to be difficult to implement in practice because it requires the sender and the receiver
+						to agree on a shared place to keep track the "to be processed" information. With super high-availability cloud key-value stores
+						it is no longer a problem
+						<br/>
+					</aside>
+				</section>
+				<section data-transition="none-in slide-out">
+					<img src="images/sender-receiver-3.png" class="stretch"/>
+					<aside class="notes">
+						<br/>
+					</aside>
+				</section>
+				<section class="timeline-slide">
+					<div class="timeline-wrapper">
+						<span class="fragment highlight-step" data-fragment-index="4"></span>
+
+						<table class="timeline-table">
+							<!-- <td class="empty"></td> -->
+							<tr><td class="cell-box fragment" data-fragment-index="0"><div>Create record</div></td><td class="cell-box fragment" data-fragment-index="5"><div>Create tokens</div></td></tr>
+							<tr><td class="empty"></td><td class="cell-box fragment" data-fragment-index="6"><div>Checkpoint</div></td></tr>
+							<tr><td class="cell-box fragment to-highlight" data-fragment-index="1"><div>Load record</div></td><td class="cell-box fragment" data-fragment-index="7"><div>Send messages</div></td></tr>
+							<tr><td class="cell-box fragment to-highlight" data-fragment-index="2"><div>Verify token exists</div></td><td class="empty"></td></tr>
+							<tr><td class="cell-box fragment to-highlight" data-fragment-index="3"><div>Update record & store messages</div></td><td class="cell-box fragment" data-fragment-index="8"><div>Delete token</div></td></tr>
+							<tr><td class="empty"></td><td class="cell-box fragment" data-fragment-index="8"><div>Delete record</div></td></tr>
+						</table>
+						<div class="flow-arrow arrow-left"></div>
+						<div class="flow-arrow arrow-right fragment" data-fragment-index="4"></div>
+					</div>
+				</section>
+				<section>
+					<img src="images/trebuchet.webp" class="stretch"/>
+					<aside class="notes">
+						Let us trebuchet our outbox out of the dark ages!
+						<br/>
+					</aside>
+				</section>
+				<section>
+					<div style="display: flex; gap: 20px; justify-content: center;">
+						<img src="images/blog.png" style="width: 60%;" />
+						<img src="images/blog-qr.png" style="width: 30%; height: auto; object-fit:contain;" />
+					</div>
+				</section>
+				<section>
+					<h2>Thank you!</h2>
+					<img src="images/rate-qr-code.png" class="stretch"/>
+					<p><a href="https://www.linkedin.com/in/szymonpobiega/">linkedin.com/in/SzymonPobiega</a></p>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/jquery-2.1.4.min.js"></script>
+
+		<script src="dist/reveal.js"></script>
+
+		<script src="plugin/math/math.js"></script>
+		<script src="plugin/zoom/zoom.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/search/search.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: false,
+				progress: true,
+				history: true,
+				center: true,
+				// The "normal" size of the presentation, aspect ratio will
+				// be preserved when the presentation is scaled to fit different
+				// resolutions. Can be specified using percentage units.
+				width: 1260,
+				height: 700,
+
+				margin: 0,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				mathjax2: {
+					config: 'TeX-AMS_HTML-full',
+				},
+
+				// There are three typesetters available
+				// RevealMath.MathJax2 (default)
+				// RevealMath.MathJax3
+				// RevealMath.KaTeX
+				//
+				// More info at https://revealjs.com/math/
+				plugins: [ RevealMath.MathJax3, RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight ]
+			});
+
+		</script>
+
+	</body>
+</html>
